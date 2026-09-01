@@ -52,8 +52,11 @@ class CounterLocalDataSource {
     }
 }
 
-// Repository: the single point of contact for count data. The ViewModel
-// below never talks to CounterLocalDataSource directly.
+// Repository: the single point of contact for count data. Right now it
+// wraps a simple in-memory data source, but it could just as easily wrap
+// Room, DataStore, or even a cloud database like Firestore — the
+// ViewModel below never talks to CounterLocalDataSource directly, so it
+// wouldn't need to change either way.
 class CounterRepository(
     private val localDataSource: CounterLocalDataSource
 ) {
@@ -65,7 +68,9 @@ class CounterRepository(
 }
 
 // ViewModel: delegates to the Repository instead of holding the count
-// itself. Still survives configuration changes exactly like before.
+// itself. Still survives configuration changes exactly like before, and
+// stays exactly this simple no matter what storage the Repository ends
+// up wrapping — Room, Firestore, or otherwise.
 class CounterViewModel(
     private val repository: CounterRepository
 ) : ViewModel() {
