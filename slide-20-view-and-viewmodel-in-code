@@ -1,0 +1,77 @@
+package com.example.lect4archtestapp
+
+import android.os.Bundle
+import android.util.Log
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.Button
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.lect4archtestapp.ui.theme.Lect4ArchTestAppTheme
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+
+class MainActivity : ComponentActivity() {
+    private val TAG = "LifecycleDemo"
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        Log.d(TAG, "onCreate")
+        setContent {
+            Lect4ArchTestAppTheme {
+                CounterScreen()
+            }
+        }
+    }
+
+    override fun onStart() { super.onStart(); Log.d(TAG, "onStart") }
+    override fun onRestart() { super.onRestart(); Log.d(TAG, "onRestart") }
+    override fun onResume() { super.onResume(); Log.d(TAG, "onResume") }
+    override fun onPause() { super.onPause(); Log.d(TAG, "onPause") }
+    override fun onStop() { super.onStop(); Log.d(TAG, "onStop") }
+    override fun onDestroy() { super.onDestroy(); Log.d(TAG, "onDestroy") }
+}
+
+// ViewModel: holds the count. The Android framework keeps this instance
+// alive across configuration changes — it is NOT recreated when the
+// Activity is destroyed and recreated on rotation.
+class CounterViewModel : ViewModel() {
+    private val _count = MutableStateFlow(0)
+    val count: StateFlow<Int> = _count
+
+    fun increment() {
+        _count.value = _count.value + 1
+    }
+}
+
+// View: purely displays state and forwards the button click. It never
+// stores the count itself — it just reads whatever the ViewModel exposes.
+@Composable
+fun CounterScreen(viewModel: CounterViewModel = viewModel()) {
+    val count by viewModel.count.collectAsState()
+
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(text = "Count: $count")
+        Button(onClick = { viewModel.increment() }) {
+            Text("Increment")
+        }
+    }
+}
+
+// Try it: tap Increment a few times, then rotate. Logcat will still show
+// onDestroy followed by onCreate — the Activity really is being torn down
+// and rebuilt, exactly like in the slide 12 demo. But this time the count
+// is unchanged, because CounterViewModel was never destroyed.
