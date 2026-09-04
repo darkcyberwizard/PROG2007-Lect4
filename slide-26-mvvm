@@ -34,16 +34,13 @@ class MainActivity : ComponentActivity() {
     }
 
     override fun onStart() { super.onStart(); Log.d(TAG, "onStart") }
-    override fun onRestart() { super.onRestart(); Log.d(TAG, "onRestart") }
     override fun onResume() { super.onResume(); Log.d(TAG, "onResume") }
     override fun onPause() { super.onPause(); Log.d(TAG, "onPause") }
     override fun onStop() { super.onStop(); Log.d(TAG, "onStop") }
     override fun onDestroy() { super.onDestroy(); Log.d(TAG, "onDestroy") }
 }
 
-// ViewModel: holds the count. The Android framework keeps this instance
-// alive across configuration changes — it is NOT recreated when the
-// Activity is destroyed and recreated on rotation.
+// MVVM: the View calls a function directly on the ViewModel.
 class CounterViewModel : ViewModel() {
     private val _count = MutableStateFlow(0)
     val count: StateFlow<Int> = _count
@@ -53,8 +50,6 @@ class CounterViewModel : ViewModel() {
     }
 }
 
-// View: purely displays state and forwards the button click. It never
-// stores the count itself — it just reads whatever the ViewModel exposes.
 @Composable
 fun CounterScreen(viewModel: CounterViewModel = viewModel()) {
     val count by viewModel.count.collectAsState()
@@ -71,7 +66,6 @@ fun CounterScreen(viewModel: CounterViewModel = viewModel()) {
     }
 }
 
-// Try it: tap Increment a few times, then rotate. Logcat will still show
-// onDestroy followed by onCreate — the Activity really is being torn down
-// and rebuilt, exactly like in the slide 12 demo. But this time the count
-// is unchanged, because CounterViewModel was never destroyed.
+// Rotate the device after tapping Increment a few times — Logcat shows
+// onDestroy followed by onCreate, but the count survives because
+// CounterViewModel, not the Activity, is what's holding it.
