@@ -1,0 +1,87 @@
+package com.example.lect4archtestapp
+
+import android.os.Bundle
+import android.util.Log
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.Button
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.lect4archtestapp.ui.theme.Lect4ArchTestAppTheme
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+
+class MainActivity : ComponentActivity() {
+    private val TAG = "LifecycleDemo"
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        Log.d(TAG, "onCreate")
+        setContent {
+            Lect4ArchTestAppTheme {
+                CounterScreen()
+            }
+        }
+    }
+
+    override fun onStart() { super.onStart(); Log.d(TAG, "onStart") }
+    override fun onResume() { super.onResume(); Log.d(TAG, "onResume") }
+    override fun onPause() { super.onPause(); Log.d(TAG, "onPause") }
+    override fun onStop() { super.onStop(); Log.d(TAG, "onStop") }
+    override fun onDestroy() { super.onDestroy(); Log.d(TAG, "onDestroy") }
+}
+
+// MVI: the View never calls a named function — it only ever dispatches
+// an Intent describing what the user wants.
+sealed class CounterIntent {
+    object Increment : CounterIntent()
+}
+
+// The entire screen's information lives in one bundled State object.
+data class CounterState(val count: Int = 0)
+
+class CounterViewModel : ViewModel() {
+    private val _state = MutableStateFlow(CounterState())
+    val state: StateFlow<CounterState> = _state
+
+    fun handleIntent(intent: CounterIntent) {
+        _state.value = reduce(_state.value, intent)
+    }
+
+    // The Reducer: current State + Intent -> new State. This is the only
+    // place allowed to produce a new state.
+    private fun reduce(current: CounterState, intent: CounterIntent): CounterState =
+        when (intent) {
+            is CounterIntent.Increment -> current.copy(count = current.count + 1)
+        }
+}
+
+@Composable
+fun CounterScreen(viewModel: CounterViewModel = viewModel()) {
+    val state by viewModel.state.collectAsState()
+
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(text = "Count: ${state.count}")
+        Button(onClick = { viewModel.handleIntent(CounterIntent.Increment) }) {
+            Text("Increment")
+        }
+    }
+}
+
+// Rotate the device after tapping Increment — same survival as the MVVM
+// version, since CounterViewModel is still what's retained. The
+// difference is entirely in how the View talks to it: dispatching an
+// Intent instead of calling a named function.
