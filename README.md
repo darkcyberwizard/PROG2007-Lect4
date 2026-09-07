@@ -12,7 +12,7 @@ Slides 20 and 24 also require the ViewModel-Compose dependency — add `implemen
 
 | Slide | Topic | Code |
 |---|---|---|
-| 09 | Activity Lifecycle in Code | [slide-10-activity-lifecycle-in-code](./slide-09-activity-lifecycle-in-code) |
-| 11 | The Problem: Data Lost on Rotation | [slide-12-data-lost-on-rotation](./slide-11-data-lost-on-rotation) |
+| 09 | Activity Lifecycle in Code | [slide-09-activity-lifecycle-in-code](./slide-09-activity-lifecycle-in-code) |
+| 11 | The Problem: Data Lost on Rotation | [slide-11-data-lost-on-rotation](./slide-11-data-lost-on-rotation) |
 | 26 | MVVM in Code | [slide-26-mvvm](./slide-26-mvvm) |
 | 27 | MVI in Code | [slide-27-mvi](./slide-27-mvi) |
